@@ -1,22 +1,48 @@
 <template>
-  <p class="input-container">
-    <span class="input-currency">USD:</span> <input v-model="usd" @keypress="allowOnlyNumeric" @keyup="convert" class="input">
-  </p>
-
-  <p class="input-container">
-    <span class="input-currency">BYN:</span> <input v-model="byn" @keypress="allowOnlyNumeric" @keyup="convert" class="input">
-  </p>
+  <Input
+    @click="log"
+    v-for="currency in currencies"
+    :currency="currency"
+    :key="currency.id"
+    :allowOnlyNumeric="allowOnlyNumeric"
+    :convert="convert"
+    @makeActive="makeActive"
+  />
 </template>
 
 <script>
-import { BYN_RATIO } from '@/ratios';
+import Input from '@/Input';
+
+import * as ratio from '@/ratios';
 
 export default {
-  name: 'App',
+  components: { Input },
   data() {
     return {
-      usd: 1,
-      byn: 0
+      currencies: {
+        usd: {
+          id: 'usd',
+          name: 'USD',
+          amount: 1
+        },
+        byn: {
+          id: 'byn',
+          name: 'BYN',
+          amount: 0
+        },
+        eur: {
+          id: 'eur',
+          name: 'EUR',
+          amount: 0
+        },
+        rub: {
+          id: 'rub',
+          name: 'RUB',
+          amount: 0
+        }
+      },
+
+      activeCurrId: 'usd'
     }
   },
   methods: {
@@ -32,16 +58,34 @@ export default {
     },
 
     convert() {
-      if (this.usd === '') {
-        this.byn = '';
-        return;
-      }
+      const currencies = Object.keys(this.currencies).filter(curr => curr.id !== 'usd');
+      for (const currency of currencies) {
+        if (this.activeCurrId !== 'usd') {
+          this.currencies.usd.amount = Number((this.currencies[this.activeCurrId].amount / ratio[this.activeCurrId]).toFixed(4));
+        }
 
-      this.byn = Number((this.usd * BYN_RATIO).toFixed(4));
+        if (currency.id === this.activeCurrId) continue;
+
+        this.currencies[currency.id].amount = Number((this.currencies.usd.amount * ratio[currency.id]).toFixed(4));
+      }
+    },
+
+    makeActive(currencyId) {
+      this.activeCurrId = currencyId;
+    },
+
+    log() {
+      console.log(this.activeCurrId)
     }
   },
   mounted() {
-    this.convert();
+    // TODO: refactor - need method for converting
+    const currencies = Object.keys(this.currencies).filter(curr => curr.id !== 'usd');
+    for (const currency of currencies) {
+      if (currency.id === this.activeCurrId) continue;
+
+      this.currencies[currency.id].amount = Number((this.currencies.usd.amount * ratio[currency.id]).toFixed(4));
+    }
   }
 }
 </script>
