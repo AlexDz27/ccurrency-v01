@@ -1,0 +1,1 @@
+export const BYN_RATIO = 2.5388;

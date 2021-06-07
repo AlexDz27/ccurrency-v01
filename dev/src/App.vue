@@ -1,12 +1,16 @@
 <template>
-  <h2>Base currency: USD</h2>
-  <input v-model="usd" @keypress="allowOnlyNumeric" @keyup="convert" class="input">
+  <p class="input-container">
+    <span class="input-currency">USD:</span> <input v-model="usd" @keypress="allowOnlyNumeric" @keyup="convert" class="input">
+  </p>
 
-  <h3>BYN</h3>
-  <input v-model="byn" class="input">
+  <p class="input-container">
+    <span class="input-currency">BYN:</span> <input v-model="byn" @keypress="allowOnlyNumeric" @keyup="convert" class="input">
+  </p>
 </template>
 
 <script>
+import { BYN_RATIO } from '@/ratios';
+
 export default {
   name: 'App',
   data() {
@@ -33,10 +37,7 @@ export default {
         return;
       }
 
-      const BYN_RATIO = 2.5374;
-
-      // TODO: redo the algorithm
-      this.byn = Math.round((this.usd * BYN_RATIO + Number.EPSILON) * 100) / 100;
+      this.byn = Number((this.usd * BYN_RATIO).toFixed(4));
     }
   },
   mounted() {
@@ -65,6 +66,16 @@ body {
   text-align: center;
 
   background-color: #fff; /* TODO: remove when deploying */
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  font-size: 32px;
+}
+
+.input-currency {
+  margin-right: 9px;
 }
 
 .input {
